@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  ddns-updater:
+    build: .
+    environment:
+      - DO_TOKEN=${DO_TOKEN}
+      - DOMAIN=${DOMAIN}
+      - SUBDOMAIN=${SUBDOMAIN}
+      - RECORD_TYPE=${RECORD_TYPE:-A}
+      - TTL=${TTL:-300}
+      - DEBUG=${DEBUG:-0}
+    restart: unless-stopped
+    # Run every 5 minutes
+    command: sh -c "while true; do ./ddns-updater; sleep 300; done"
