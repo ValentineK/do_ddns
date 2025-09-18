@@ -6,9 +6,9 @@ services:
       - DOMAIN=${DOMAIN}
       - SUBDOMAIN=${SUBDOMAIN}
       - RECORD_TYPE=${RECORD_TYPE:-A}
-      - TTL=${TTL:-30}
+      - TTL=${TTL:-300}
       - DEBUG=${DEBUG:-0}
     restart: unless-stopped
     user: ddns
     entrypoint: ["/bin/sh", "-c"]
-    command: ["while true; do ./ddns-updater; sleep 30; done"]
+    command: ["while true; do ./ddns-updater; sleep ${TTL:-300}; done"]

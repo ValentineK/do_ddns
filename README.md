@@ -30,7 +30,7 @@ DEBUG=0
 docker-compose up -d
 ```
 
-The application will check and update your DNS record every 5 minutes.
+The application will check and update your DNS record every 300 seconds (5 minutes).
 
 ### Using Docker
 
