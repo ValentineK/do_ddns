@@ -127,12 +127,12 @@ func loadConfigFromEnv() (*Config, error) {
 		TTL:        ttl,
 	}
 
-	fmt.Printf("Configuration loaded:\n")
-	fmt.Printf("  Domain: %s\n", config.Domain)
-	fmt.Printf("  Subdomain: %s\n", config.Subdomain)
-	fmt.Printf("  Record Type: %s\n", config.RecordType)
-	fmt.Printf("  TTL: %d\n", config.TTL)
-	fmt.Printf("  Token: %s***%s\n", config.DOToken[:8], config.DOToken[len(config.DOToken)-4:])
+	debugLog("Configuration loaded:")
+	debugLog("  Domain: %s", config.Domain)
+	debugLog("  Subdomain: %s", config.Subdomain)
+	debugLog("  Record Type: %s", config.RecordType)
+	debugLog("  TTL: %d", config.TTL)
+	debugLog("  Token: %s***%s", config.DOToken[:8], config.DOToken[len(config.DOToken)-4:])
 
 	return config, nil
 }
@@ -258,6 +258,6 @@ func updateDNSRecord(config *Config, recordID int, newIP string) error {
 func debugLog(format string, args ...interface{}) {
 	debug := os.Getenv("DEBUG")
 	if debug == "1" || debug == "true" {
-		fmt.Printf(format+"\n", args...)
+		log.Printf(format, args...)
 	}
 }
