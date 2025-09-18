@@ -1,3 +1,6 @@
+## 0.4.0
+* [set default ttl to 5 mins and reuse in command of docker-compose](fee85b7)
+
 ## 0.3.0
 * [add gitignore](7f7f37d)
 * [add \n at the end of the error output to make logs greppable](6b38643)
