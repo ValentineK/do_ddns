@@ -91,17 +91,17 @@ func main() {
 func loadConfigFromEnv() (*Config, error) {
 	doToken := os.Getenv("DO_TOKEN")
 	if doToken == "" {
-		return nil, fmt.Errorf("DO_TOKEN environment variable is required")
+		return nil, fmt.Errorf("DO_TOKEN environment variable is required\n")
 	}
 
 	domain := os.Getenv("DOMAIN")
 	if domain == "" {
-		return nil, fmt.Errorf("DOMAIN environment variable is required")
+		return nil, fmt.Errorf("DOMAIN environment variable is required\n")
 	}
 
 	subdomain := os.Getenv("SUBDOMAIN")
 	if subdomain == "" {
-		return nil, fmt.Errorf("SUBDOMAIN environment variable is required")
+		return nil, fmt.Errorf("SUBDOMAIN environment variable is required\n")
 	}
 
 	recordType := os.Getenv("RECORD_TYPE")
@@ -114,7 +114,7 @@ func loadConfigFromEnv() (*Config, error) {
 	if ttlStr != "" {
 		parsedTTL, err := strconv.Atoi(ttlStr)
 		if err != nil {
-			return nil, fmt.Errorf("invalid TTL value '%s': %v", ttlStr, err)
+			return nil, fmt.Errorf("invalid TTL value '%s': %v\n", ttlStr, err)
 		}
 		ttl = parsedTTL
 	}
@@ -142,23 +142,23 @@ func getCurrentIP() (string, error) {
 	
 	resp, err := client.Get(myIPURL)
 	if err != nil {
-		return "", fmt.Errorf("failed to get IP: %v", err)
+		return "", fmt.Errorf("failed to get IP: %v\n", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("API returned status %d", resp.StatusCode)
+		return "", fmt.Errorf("API returned status %d\n", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("failed to read response: %v", err)
+		return "", fmt.Errorf("failed to read response: %v\n", err)
 	}
 
 	var ipResp IPResponse
 	err = json.Unmarshal(body, &ipResp)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse IP response: %v", err)
+		return "", fmt.Errorf("failed to parse IP response: %v\n", err)
 	}
 
 	return ipResp.IP, nil
@@ -171,7 +171,7 @@ func getDNSRecord(config *Config) (int, string, error) {
 	
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return 0, "", fmt.Errorf("failed to create request: %v", err)
+		return 0, "", fmt.Errorf("failed to create request: %v\n", err)
 	}
 	
 	req.Header.Set("Authorization", "Bearer "+config.DOToken)
@@ -179,24 +179,24 @@ func getDNSRecord(config *Config) (int, string, error) {
 	
 	resp, err := client.Do(req)
 	if err != nil {
-		return 0, "", fmt.Errorf("failed to get DNS records: %v", err)
+		return 0, "", fmt.Errorf("failed to get DNS records: %v\n", err)
 	}
 	defer resp.Body.Close()
 	
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return 0, "", fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(body))
+		return 0, "", fmt.Errorf("API returned status %d: %s\n", resp.StatusCode, string(body))
 	}
 	
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return 0, "", fmt.Errorf("failed to read response: %v", err)
+		return 0, "", fmt.Errorf("failed to read response: %v\n", err)
 	}
 	
 	var recordsResp DORecordsResponse
 	err = json.Unmarshal(body, &recordsResp)
 	if err != nil {
-		return 0, "", fmt.Errorf("failed to parse DNS records response: %v", err)
+		return 0, "", fmt.Errorf("failed to parse DNS records response: %v\n", err)
 	}
 	
 	// Find the record we want to update
@@ -212,7 +212,7 @@ func getDNSRecord(config *Config) (int, string, error) {
 		fmt.Printf("  Type: %s, Name: '%s', Data: %s\n", record.Type, record.Name, record.Data)
 	}
 	
-	return 0, "", fmt.Errorf("DNS record not found for '%s' (type %s). Check available records above", config.Subdomain, config.RecordType)
+	return 0, "", fmt.Errorf("DNS record not found for '%s' (type %s). Check available records above\n", config.Subdomain, config.RecordType)
 }
 
 func updateDNSRecord(config *Config, recordID int, newIP string) error {
