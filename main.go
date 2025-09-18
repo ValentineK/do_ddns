@@ -58,19 +58,19 @@ const (
 func main() {
 	config, err := loadConfigFromEnv()
 	if err != nil {
-		log.Fatalf("Failed to load config from environment: %v", err)
+		log.Fatalf("Failed to load config from environment: %v\n", err)
 	}
 
 	currentIP, err := getCurrentIP()
 	if err != nil {
-		log.Fatalf("Failed to get current IP: %v", err)
+		log.Fatalf("Failed to get current IP: %v\n", err)
 	}
 
 	fmt.Printf("Current IP: %s\n", currentIP)
 
 	recordID, currentDNSIP, err := getDNSRecord(config)
 	if err != nil {
-		log.Fatalf("Failed to get DNS record: %v", err)
+		log.Fatalf("Failed to get DNS record: %v\n", err)
 	}
 
 	if currentDNSIP == currentIP {
@@ -82,7 +82,7 @@ func main() {
 
 	err = updateDNSRecord(config, recordID, currentIP)
 	if err != nil {
-		log.Fatalf("Failed to update DNS record: %v", err)
+		log.Fatalf("Failed to update DNS record: %v\n", err)
 	}
 
 	fmt.Printf("Successfully updated %s.%s to %s\n", config.Subdomain, config.Domain, currentIP)
@@ -227,14 +227,14 @@ func updateDNSRecord(config *Config, recordID int, newIP string) error {
 	
 	jsonData, err := json.Marshal(updateReq)
 	if err != nil {
-		return fmt.Errorf("failed to marshal update request: %v", err)
+		return fmt.Errorf("failed to marshal update request: %v\n", err)
 	}
 	
 	url := fmt.Sprintf("%s/domains/%s/records/%d", doAPIURL, config.Domain, recordID)
 	
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return fmt.Errorf("failed to create request: %v", err)
+		return fmt.Errorf("failed to create request: %v\n", err)
 	}
 	
 	req.Header.Set("Authorization", "Bearer "+config.DOToken)
@@ -242,13 +242,13 @@ func updateDNSRecord(config *Config, recordID int, newIP string) error {
 	
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to update DNS record: %v", err)
+		return fmt.Errorf("failed to update DNS record: %v\n", err)
 	}
 	defer resp.Body.Close()
 	
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(body))
+		return fmt.Errorf("API returned status %d: %s\n", resp.StatusCode, string(body))
 	}
 	
 	return nil
