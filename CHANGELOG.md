@@ -1,3 +1,6 @@
+## 0.5.0
+* add ifconfig.me fallback when api.myip.com fails
+
 ## 0.4.0
 * [set default ttl to 5 mins and reuse in command of docker-compose](fee85b7)
 

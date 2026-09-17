@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -51,8 +52,9 @@ type DOUpdateRequest struct {
 }
 
 const (
-	myIPURL  = "https://api.myip.com"
-	doAPIURL = "https://api.digitalocean.com/v2"
+	myIPURL      = "https://api.myip.com"
+	ifconfigURL  = "https://ifconfig.me/ip"
+	doAPIURL     = "https://api.digitalocean.com/v2"
 )
 
 func main() {
@@ -138,30 +140,66 @@ func loadConfigFromEnv() (*Config, error) {
 }
 
 func getCurrentIP() (string, error) {
+	ip, err := getCurrentIPFromMyIP()
+	if err == nil {
+		return ip, nil
+	}
+	debugLog("myip.com failed (%v), falling back to ifconfig.me", err)
+
+	ip, fallbackErr := getCurrentIPFromIfconfig()
+	if fallbackErr != nil {
+		return "", fmt.Errorf("failed to get IP: myip.com: %v; ifconfig.me: %v\n", err, fallbackErr)
+	}
+
+	return ip, nil
+}
+
+func getCurrentIPFromMyIP() (string, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
-	
+
 	resp, err := client.Get(myIPURL)
 	if err != nil {
-		return "", fmt.Errorf("failed to get IP: %v\n", err)
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("API returned status %d\n", resp.StatusCode)
+		return "", fmt.Errorf("API returned status %d", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("failed to read response: %v\n", err)
+		return "", fmt.Errorf("failed to read response: %v", err)
 	}
 
 	var ipResp IPResponse
 	err = json.Unmarshal(body, &ipResp)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse IP response: %v\n", err)
+		return "", fmt.Errorf("failed to parse IP response: %v", err)
 	}
 
 	return ipResp.IP, nil
+}
+
+func getCurrentIPFromIfconfig() (string, error) {
+	client := &http.Client{Timeout: 10 * time.Second}
+
+	resp, err := client.Get(ifconfigURL)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("API returned status %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %v", err)
+	}
+
+	return strings.TrimSpace(string(body)), nil
 }
 
 func getDNSRecord(config *Config) (int, string, error) {
